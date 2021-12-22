@@ -2,6 +2,10 @@
   Apptainer Website
 </h1>
 
+This website is maintained as a sub-project by the Apptainer project.
+To contribute, see the [Apptainer CONTRIBUTING
+file](https://github.com/apptainer/apptainer/blob/main/CONTRIBUTING.md).
+
 ## 🚀 Quick start
 
 1.  **Start developing.**
