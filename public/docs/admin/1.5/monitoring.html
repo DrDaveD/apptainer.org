@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitoring Support &mdash; Apptainer Admin Guide main documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a8da1a53"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=7cec7674"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Security in Apptainer" href="security.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Apptainer Admin Guide
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="admin_quickstart.html">Admin Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing Apptainer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="singularity_migration.html">Migrating from Singularity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configfiles.html">Configuration files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_namespace.html">User Namespaces &amp; Fakeroot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security in Apptainer</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Monitoring</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Apptainer Admin Guide</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Monitoring Support</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/apptainer/apptainer-admindocs/blob/main/monitoring.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="monitoring-support">
+<span id="monitoring"></span><h1>Monitoring Support<a class="headerlink" href="#monitoring-support" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Apptainer does not provide a native way to collect metrics of containers. <a class="reference external" href="https://github.com/apptainer/apptheus">Apptheus</a> is a small
+agent tool that helps connect Apptainer to Prometheus.</p>
+<p>This tool is designed with several main considerations:</p>
+<ol class="arabic simple">
+<li><p>Less invasion. Developing a tool that is tightly bound to Apptainer will bring too much invasion to Apptainer itself. This should be avoided.</p></li>
+<li><p>Cgroup stats. Preferring using existing Linux feature for metrics collection.</p></li>
+<li><p>Security. Needing customized security policy to help verify whether the caller is trusted.</p></li>
+<li><p>Customized push policy. Allowing administrator to freely configure the push interval when sampling container metrics.</p></li>
+</ol>
+</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<p>Apptheus requires root privilege. This is because Apptheus requires permissions to manipulate the cgroups when new Apptainer containers are created.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>First, the administrator needs to enable the monitoring feature inside Apptainer by editing <code class="docutils literal notranslate"><span class="pre">apptainer.conf</span></code>.
+Simply changing the value of <code class="docutils literal notranslate"><span class="pre">allow</span> <span class="pre">monitoring</span></code> to <code class="docutils literal notranslate"><span class="pre">yes</span></code>.</p>
+<div class="highlight-linuxconfig notranslate"><div class="highlight"><pre><span></span><span class="c"># ALLOW MONITORING: [BOOL]</span>
+<span class="c"># DEFAULT: no</span>
+<span class="c"># Allow to monitor the system resource usage of apptainer. To enable this option</span>
+<span class="c"># additional tool, i.e. apptheus, is required.</span>
+allow monitoring <span class="s">= yes</span>
+</pre></div>
+</div>
+<p>Then the administrator starts the Apptheus</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apptheus<span class="w"> </span>--trust.path<span class="o">=</span>/usr/local/libexec/apptainer/bin/starter<span class="p">;</span>/usr/local/libexec/apptainer/bin/starter-suid
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--trust.path</span></code> lists trusted callers to Apptheus. In this case, they are <code class="docutils literal notranslate"><span class="pre">starter</span></code> or <code class="docutils literal notranslate"><span class="pre">starter-suid</span></code> for Apptainer.</p>
+</div>
+<p>Prometheus can read the container’s metrics via the local http address, by default <code class="docutils literal notranslate"><span class="pre">localhost:9091/metrics</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>curl<span class="w"> </span>locahost:9091/metrics
+<span class="gp"># </span>HELP<span class="w"> </span>apptheus_build_info<span class="w"> </span>A<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>a<span class="w"> </span>constant<span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="w"> </span>value<span class="w"> </span>labeled<span class="w"> </span>by<span class="w"> </span>version,<span class="w"> </span>revision,<span class="w"> </span>branch,<span class="w"> </span>goversion<span class="w"> </span>from<span class="w"> </span>which<span class="w"> </span>apptheus<span class="w"> </span>was<span class="w"> </span>built,<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>goos<span class="w"> </span>and<span class="w"> </span>goarch<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>build.
+<span class="gp"># </span>TYPE<span class="w"> </span>apptheus_build_info<span class="w"> </span>gauge
+<span class="go">apptheus_build_info{branch=&quot;&quot;,goarch=&quot;arm64&quot;,goos=&quot;linux&quot;,goversion=&quot;go1.21.1&quot;,revision=&quot;284ead0316031c8c08e2081f0468ad83bfb82e20&quot;,tags=&quot;unknown&quot;,version=&quot;&quot;} 1</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_gc_duration_seconds<span class="w"> </span>A<span class="w"> </span>summary<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>pause<span class="w"> </span>duration<span class="w"> </span>of<span class="w"> </span>garbage<span class="w"> </span>collection<span class="w"> </span>cycles.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_gc_duration_seconds<span class="w"> </span>summary
+<span class="go">go_gc_duration_seconds{quantile=&quot;0&quot;} 0</span>
+<span class="go">go_gc_duration_seconds{quantile=&quot;0.25&quot;} 0</span>
+<span class="go">go_gc_duration_seconds{quantile=&quot;0.5&quot;} 0</span>
+<span class="go">go_gc_duration_seconds{quantile=&quot;0.75&quot;} 0</span>
+<span class="go">go_gc_duration_seconds{quantile=&quot;1&quot;} 0</span>
+<span class="go">go_gc_duration_seconds_sum 0</span>
+<span class="go">go_gc_duration_seconds_count 0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_goroutines<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>goroutines<span class="w"> </span>that<span class="w"> </span>currently<span class="w"> </span>exist.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_goroutines<span class="w"> </span>gauge
+<span class="go">go_goroutines 13</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_info<span class="w"> </span>Information<span class="w"> </span>about<span class="w"> </span>the<span class="w"> </span>Go<span class="w"> </span>environment.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_info<span class="w"> </span>gauge
+<span class="go">go_info{version=&quot;go1.21.1&quot;} 1</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_alloc_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>allocated<span class="w"> </span>and<span class="w"> </span>still<span class="w"> </span><span class="k">in</span><span class="w"> </span>use.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_alloc_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_alloc_bytes 577680</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_alloc_bytes_total<span class="w"> </span>Total<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>allocated,<span class="w"> </span>even<span class="w"> </span><span class="k">if</span><span class="w"> </span>freed.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_alloc_bytes_total<span class="w"> </span>counter
+<span class="go">go_memstats_alloc_bytes_total 577680</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_buck_hash_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>used<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>profiling<span class="w"> </span>bucket<span class="w"> </span><span class="nb">hash</span><span class="w"> </span>table.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_buck_hash_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_buck_hash_sys_bytes 5134</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_frees_total<span class="w"> </span>Total<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>frees.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_frees_total<span class="w"> </span>counter
+<span class="go">go_memstats_frees_total 0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_gc_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>garbage<span class="w"> </span>collection<span class="w"> </span>system<span class="w"> </span>metadata.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_gc_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_gc_sys_bytes 2.563968e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_heap_alloc_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>heap<span class="w"> </span>bytes<span class="w"> </span>allocated<span class="w"> </span>and<span class="w"> </span>still<span class="w"> </span><span class="k">in</span><span class="w"> </span>use.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_heap_alloc_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_heap_alloc_bytes 577680</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_heap_idle_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>heap<span class="w"> </span>bytes<span class="w"> </span>waiting<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>used.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_heap_idle_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_heap_idle_bytes 1.55648e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_heap_inuse_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>heap<span class="w"> </span>bytes<span class="w"> </span>that<span class="w"> </span>are<span class="w"> </span><span class="k">in</span><span class="w"> </span>use.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_heap_inuse_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_heap_inuse_bytes 2.146304e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_heap_objects<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>allocated<span class="w"> </span>objects.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_heap_objects<span class="w"> </span>gauge
+<span class="go">go_memstats_heap_objects 2406</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_heap_released_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>heap<span class="w"> </span>bytes<span class="w"> </span>released<span class="w"> </span>to<span class="w"> </span>OS.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_heap_released_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_heap_released_bytes 1.55648e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_heap_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>heap<span class="w"> </span>bytes<span class="w"> </span>obtained<span class="w"> </span>from<span class="w"> </span>system.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_heap_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_heap_sys_bytes 3.702784e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_last_gc_time_seconds<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>seconds<span class="w"> </span>since<span class="w"> </span><span class="m">1970</span><span class="w"> </span>of<span class="w"> </span>last<span class="w"> </span>garbage<span class="w"> </span>collection.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_last_gc_time_seconds<span class="w"> </span>gauge
+<span class="go">go_memstats_last_gc_time_seconds 0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_lookups_total<span class="w"> </span>Total<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>pointer<span class="w"> </span>lookups.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_lookups_total<span class="w"> </span>counter
+<span class="go">go_memstats_lookups_total 0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_mallocs_total<span class="w"> </span>Total<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>mallocs.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_mallocs_total<span class="w"> </span>counter
+<span class="go">go_memstats_mallocs_total 2406</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_mcache_inuse_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span><span class="k">in</span><span class="w"> </span>use<span class="w"> </span>by<span class="w"> </span>mcache<span class="w"> </span>structures.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_mcache_inuse_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_mcache_inuse_bytes 2400</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_mcache_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>mcache<span class="w"> </span>structures<span class="w"> </span>obtained<span class="w"> </span>from<span class="w"> </span>system.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_mcache_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_mcache_sys_bytes 15600</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_mspan_inuse_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span><span class="k">in</span><span class="w"> </span>use<span class="w"> </span>by<span class="w"> </span>mspan<span class="w"> </span>structures.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_mspan_inuse_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_mspan_inuse_bytes 45528</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_mspan_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>mspan<span class="w"> </span>structures<span class="w"> </span>obtained<span class="w"> </span>from<span class="w"> </span>system.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_mspan_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_mspan_sys_bytes 48888</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_next_gc_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>heap<span class="w"> </span>bytes<span class="w"> </span>when<span class="w"> </span>next<span class="w"> </span>garbage<span class="w"> </span>collection<span class="w"> </span>will<span class="w"> </span>take<span class="w"> </span>place.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_next_gc_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_next_gc_bytes 4.194304e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_other_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>other<span class="w"> </span>system<span class="w"> </span>allocations.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_other_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_other_sys_bytes 617626</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_stack_inuse_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span><span class="k">in</span><span class="w"> </span>use<span class="w"> </span>by<span class="w"> </span>the<span class="w"> </span>stack<span class="w"> </span>allocator.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_stack_inuse_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_stack_inuse_bytes 491520</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_stack_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>obtained<span class="w"> </span>from<span class="w"> </span>system<span class="w"> </span><span class="k">for</span><span class="w"> </span>stack<span class="w"> </span>allocator.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_stack_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_stack_sys_bytes 491520</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_memstats_sys_bytes<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>bytes<span class="w"> </span>obtained<span class="w"> </span>from<span class="w"> </span>system.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_memstats_sys_bytes<span class="w"> </span>gauge
+<span class="go">go_memstats_sys_bytes 7.44552e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>go_threads<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>OS<span class="w"> </span>threads<span class="w"> </span>created.
+<span class="gp"># </span>TYPE<span class="w"> </span>go_threads<span class="w"> </span>gauge
+<span class="go">go_threads 9</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_cpu_seconds_total<span class="w"> </span>Total<span class="w"> </span>user<span class="w"> </span>and<span class="w"> </span>system<span class="w"> </span>CPU<span class="w"> </span><span class="nb">time</span><span class="w"> </span>spent<span class="w"> </span><span class="k">in</span><span class="w"> </span>seconds.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_cpu_seconds_total<span class="w"> </span>counter
+<span class="go">process_cpu_seconds_total 0.02</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_max_fds<span class="w"> </span>Maximum<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>open<span class="w"> </span>file<span class="w"> </span>descriptors.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_max_fds<span class="w"> </span>gauge
+<span class="go">process_max_fds 1.048576e+06</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_open_fds<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>open<span class="w"> </span>file<span class="w"> </span>descriptors.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_open_fds<span class="w"> </span>gauge
+<span class="go">process_open_fds 13</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_resident_memory_bytes<span class="w"> </span>Resident<span class="w"> </span>memory<span class="w"> </span>size<span class="w"> </span><span class="k">in</span><span class="w"> </span>bytes.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_resident_memory_bytes<span class="w"> </span>gauge
+<span class="go">process_resident_memory_bytes 1.1862016e+07</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_start_time_seconds<span class="w"> </span>Start<span class="w"> </span><span class="nb">time</span><span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>process<span class="w"> </span>since<span class="w"> </span>unix<span class="w"> </span>epoch<span class="w"> </span><span class="k">in</span><span class="w"> </span>seconds.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_start_time_seconds<span class="w"> </span>gauge
+<span class="go">process_start_time_seconds 1.70902187483e+09</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_virtual_memory_bytes<span class="w"> </span>Virtual<span class="w"> </span>memory<span class="w"> </span>size<span class="w"> </span><span class="k">in</span><span class="w"> </span>bytes.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_virtual_memory_bytes<span class="w"> </span>gauge
+<span class="go">process_virtual_memory_bytes 1.797275648e+09</span>
+<span class="gp"># </span>HELP<span class="w"> </span>process_virtual_memory_max_bytes<span class="w"> </span>Maximum<span class="w"> </span>amount<span class="w"> </span>of<span class="w"> </span>virtual<span class="w"> </span>memory<span class="w"> </span>available<span class="w"> </span><span class="k">in</span><span class="w"> </span>bytes.
+<span class="gp"># </span>TYPE<span class="w"> </span>process_virtual_memory_max_bytes<span class="w"> </span>gauge
+<span class="go">process_virtual_memory_max_bytes 1.8446744073709552e+19</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="security.html" class="btn btn-neutral float-left" title="Security in Apptainer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+    <br>
+    &copy; Contributors to the Apptainer project, established as Apptainer a Series of LF Projects LLC
+    <br>
+    &copy; 2017-2022, Sylabs Inc
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
